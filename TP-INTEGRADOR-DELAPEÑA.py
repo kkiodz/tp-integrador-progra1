@@ -9,6 +9,7 @@ import csv
 
 nombre_archivo = 'paises.csv'
 
+# Cargo los datos del CSV y los convierto a una lista de diccionarios
 def lectura_csv(nombre_archivo):
     datos_paises = []
     try:
@@ -16,6 +17,7 @@ def lectura_csv(nombre_archivo):
             lector_csv = csv.DictReader(paises_csv)
             print(f"Datos cargados exitosamente desde '{nombre_archivo}'.")
             for fila in lector_csv:
+                # Convierto poblacion y superficie a int porque sino vienen como string
                 pais = {
                     'nombre': fila['nombre'].strip(),
                     'poblacion': int(fila['poblacion']),
@@ -31,6 +33,7 @@ def lectura_csv(nombre_archivo):
         print(f"Error al cargar los datos: {e}")
     return datos_paises
 
+# Muestro el menu principal
 def mostrar_menu():
     print("\n" + "=" * 70)
     print("       SISTEMA DE GESTIÓN DE DATOS DE PAÍSES")
@@ -47,6 +50,7 @@ def mostrar_menu():
     print("  0. Salir sin guardar")
     print("=" * 70)
 
+# Guardo los datos en el CSV
 def escritura_csv(nombre_archivo, datos_paises):
     try:
         with open(nombre_archivo, mode='w', encoding='utf-8', newline='') as paises_csv:
@@ -61,6 +65,7 @@ def escritura_csv(nombre_archivo, datos_paises):
         print(f"Error al guardar los datos: {e}")
         return False
 
+# Esta funcion evita problemas con tildes y mayusculas en los continentes
 def normalizar_continente(continente):
     mapeo_continentes = {
         'america': 'América',
@@ -73,10 +78,11 @@ def normalizar_continente(continente):
     }
     continente_limpio = continente.strip().lower()
     if continente_limpio in mapeo_continentes:
-        return mapeo_continentes[continente_limpio]
+        return mapeo_continentes[continente_limpio].capitalize()
     else:
         return False
 
+# Agrego un pais nuevo con validaciones basicas
 def agregar_pais(datos_paises):
     print("\n--- AGREGAR NUEVO PAÍS ---")
     
@@ -85,6 +91,7 @@ def agregar_pais(datos_paises):
         print("Error: El nombre no puede estar vacío.")
         return
     
+    # Controlo que no exista ya ese pais
     for pais in datos_paises:
         if pais['nombre'].lower() == nombre.lower():
             print(f"Error: El país '{nombre}' ya existe.")
@@ -113,13 +120,14 @@ def agregar_pais(datos_paises):
         print("Error: El continente no puede estar vacío.")
         return
     
+    # Normalizo el continente para evitar errores con tildes
     continente = normalizar_continente(continente)
     if not continente:
         print("Error: Continente no válido.")
         return
     
     nuevo_pais = {
-        'nombre': nombre,
+        'nombre': nombre.capitalize(),
         'poblacion': poblacion,
         'superficie': superficie,
         'continente': continente
@@ -127,6 +135,7 @@ def agregar_pais(datos_paises):
     datos_paises.append(nuevo_pais)
     print(f"País '{nombre}' agregado correctamente.")
 
+# Actualizo solo poblacion y superficie, el nombre no se modifica
 def actualizar_pais(datos_paises):
     error_poblacion = False
     error_superficie = False
@@ -172,6 +181,7 @@ def actualizar_pais(datos_paises):
     
     print(f"Error: No se encontró el país '{nombre}'.")
 
+# Busqueda por nombre, puede ser parcial
 def buscar_pais(datos_paises):
     print("\n--- BUSCAR PAÍS ---")
     busqueda = input("Ingrese el nombre o parte del nombre a buscar: ").strip().lower()
@@ -195,9 +205,11 @@ def buscar_pais(datos_paises):
     else:
         print(f"No se encontraron países que contengan '{busqueda}'.")
 
+# Filtro por continente exacto
 def filtrar_por_continente(datos_paises):
     print("\n--- FILTRAR POR CONTINENTE ---")
     
+    # Obtengo lista de continentes unicos
     continentes = []
     for pais in datos_paises:
         if pais['continente'] not in continentes:
@@ -234,6 +246,7 @@ def filtrar_por_continente(datos_paises):
     else:
         print(f"No hay países en '{continente}'.")
 
+# Filtro por rango de poblacion
 def filtrar_por_rango_poblacion(datos_paises):
     print("\n--- FILTRAR POR RANGO DE POBLACIÓN ---")
     
@@ -270,6 +283,7 @@ def filtrar_por_rango_poblacion(datos_paises):
     except ValueError:
         print("Error: Los valores deben ser números enteros.")
 
+# Filtro por rango de superficie
 def filtrar_por_rango_superficie(datos_paises):
     print("\n--- FILTRAR POR RANGO DE SUPERFICIE ---")
     
@@ -306,6 +320,7 @@ def filtrar_por_rango_superficie(datos_paises):
     except ValueError:
         print("Error: Los valores deben ser números enteros.")
 
+# Algoritmo para ordenar
 def ordenar_paises(datos_paises):
     print("\n--- ORDENAR PAÍSES ---")
     print("Criterios de ordenamiento:")
@@ -318,6 +333,7 @@ def ordenar_paises(datos_paises):
     
     opcion = input("\nSeleccione una opción (1-6): ").strip()
     
+    # Hago una copia para no modificar la lista original
     paises_ordenados = []
     for pais in datos_paises:
         paises_ordenados.append(pais.copy())
@@ -368,6 +384,7 @@ def ordenar_paises(datos_paises):
               f"Superficie: {pais['superficie']:>10,} km² | Continente: {pais['continente']}")
     print("-" * 70)
 
+# Calculo y muestro todas las estadisticas
 def mostrar_estadisticas(datos_paises):
     print("\n--- ESTADÍSTICAS DE PAÍSES ---")
     
@@ -392,6 +409,7 @@ def mostrar_estadisticas(datos_paises):
     promedio_poblacion = total_poblacion / len(datos_paises)
     promedio_superficie = total_superficie / len(datos_paises)
     
+    # Cuento cuantos paises hay por continente
     continentes_count = {}
     for pais in datos_paises:
         continente = pais['continente']
@@ -412,6 +430,7 @@ def mostrar_estadisticas(datos_paises):
         print(f"  • {continente}: {continentes_count[continente]} país(es)")
     print("=" * 70)
 
+# Programa principal
 def main():
     datos_paises = lectura_csv(nombre_archivo)
     if datos_paises:
